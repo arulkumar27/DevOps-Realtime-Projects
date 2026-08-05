@@ -1,0 +1,50 @@
+# VPC
+VPC-NAME         = "Two-Tier-VPC"
+VPC-CIDR         = "10.0.0.0/16"
+IGW-NAME         = "Two-Tier-Internet-Gateway"
+PUBLIC-CIDR1     = "10.0.1.0/24"
+PUBLIC-SUBNET1   = "Two-Tier-Public-Subnet1"
+PUBLIC-CIDR2     = "10.0.2.0/24"
+PUBLIC-SUBNET2   = "Two-Tier-Public-Subnet2"
+PRIVATE-CIDR1    = "10.0.3.0/24"
+PRIVATE-SUBNET1  = "Two-Tier-Private-Subnet1"
+PRIVATE-CIDR2    = "10.0.4.0/24"
+PRIVATE-SUBNET2  = "Two-Tier-Private-Subnet2"
+EIP-NAME1        = "Two-Tier-Elastic-IP1"
+EIP-NAME2        = "Two-Tier-Elastic-IP2"
+NGW-NAME1        = "Two-Tier-NAT1"
+NGW-NAME2        = "Two-Tier-NAT2"
+PUBLIC-RT-NAME1  = "Two-Tier-Public-Route-Table1"
+PUBLIC-RT-NAME2  = "Two-Tier-Public-Route-Table2"
+PRIVATE-RT-NAME1 = "Two-Tier-Private-Route-Table1"
+PRIVATE-RT-NAME2 = "Two-Tier-Private-Route-Table2"
+
+# Security groups
+ALB-SG-NAME = "Two-Tier-ALB-SG"
+WEB-SG-NAME = "Two-Tier-Web-SG"
+DB-SG-NAME  = "Two-Tier-DB-SG"
+
+# Optional RDS
+SG-NAME      = "two-tier-rds-subnet-group"
+RDS-USERNAME = "admin"
+DB-NAME      = "mydb"
+RDS-NAME     = "Two-Tier-RDS"
+
+# Load balancer
+TG-NAME  = "Web-TG"
+ALB-NAME = "Web-elb"
+
+# IAM
+IAM-ROLE              = "Two-Tier-EC2-SSM-Role"
+IAM-POLICY            = "Two-Tier-EC2-SSM-Policy"
+INSTANCE-PROFILE-NAME = "Two-Tier-EC2-Instance-Profile"
+
+# Auto Scaling
+AMI-NAME             = "Ubuntu-22-04"
+LAUNCH-TEMPLATE-NAME = "Web-Launch-Template"
+ASG-NAME             = "Two-Tier-ASG"
+
+# Domain and CDN
+DOMAIN-NAME = "yourdomain.com"
+CDN-NAME    = "Two-Tier-CDN"
+WEB-ACL-NAME = "Two-Tier-WAF"
