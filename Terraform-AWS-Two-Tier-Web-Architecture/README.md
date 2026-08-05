@@ -4,6 +4,8 @@ A scalable AWS web architecture provisioned using Terraform.
 
 ## Architecture
 
+![Terraform AWS Two-Tier Architecture](Terraform-AWS-Two-Tier-Architecture.png)
+
 ```text
 User → Route 53 → CloudFront + WAF → ALB → Auto Scaling EC2
 ```
