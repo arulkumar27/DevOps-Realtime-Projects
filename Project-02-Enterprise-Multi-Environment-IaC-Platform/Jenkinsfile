@@ -133,7 +133,7 @@ pipeline {
 
         stage('Terraform Quality Checks') {
             steps {
-                dir("environments/${params.ENVIRONMENT}") {
+                dir("Project-02-Enterprise-Multi-Environment-IaC-Platform/environments/${params.ENVIRONMENT}") {
                     powershell '''
                         $ErrorActionPreference = "Stop"
 
@@ -163,7 +163,7 @@ pipeline {
 
         stage('Security Scans') {
             steps {
-                dir("environments/${params.ENVIRONMENT}") {
+                dir("Project-02-Enterprise-Multi-Environment-IaC-Platform/environments/${params.ENVIRONMENT}") {
                     powershell '''
                         $ErrorActionPreference = "Stop"
 
@@ -217,7 +217,7 @@ pipeline {
                         credentialsId: 'aws-terraform-credentials'
                     ]
                 ]) {
-                    dir("environments/${params.ENVIRONMENT}") {
+                    dir("Project-02-Enterprise-Multi-Environment-IaC-Platform/environments/${params.ENVIRONMENT}") {
                         powershell '''
                             $ErrorActionPreference = "Stop"
 
@@ -268,7 +268,7 @@ pipeline {
                         credentialsId: 'aws-terraform-credentials'
                     ]
                 ]) {
-                    dir("environments/${params.ENVIRONMENT}") {
+                    dir("Project-02-Enterprise-Multi-Environment-IaC-Platform/environments/${params.ENVIRONMENT}") {
                         powershell '''
                             $ErrorActionPreference = "Stop"
 
@@ -299,7 +299,7 @@ pipeline {
                         credentialsId: 'aws-terraform-credentials'
                     ]
                 ]) {
-                    dir("environments/${params.ENVIRONMENT}") {
+                    dir("Project-02-Enterprise-Multi-Environment-IaC-Platform/environments/${params.ENVIRONMENT}") {
                         powershell '''
                             $ErrorActionPreference = "Stop"
 
@@ -353,7 +353,7 @@ pipeline {
                         credentialsId: 'aws-terraform-credentials'
                     ]
                 ]) {
-                    dir("environments/${params.ENVIRONMENT}") {
+                    dir("Project-02-Enterprise-Multi-Environment-IaC-Platform/environments/${params.ENVIRONMENT}") {
                         powershell '''
                             $ErrorActionPreference = "Stop"
 
