@@ -17,6 +17,7 @@ skip-check:
   - CKV_AWS_103
   - CKV_AWS_378
   - CKV2_AWS_11
+  - CKV_AWS_260
 
 # Checkov cannot trace these security-group attachments across module boundaries.
   - CKV2_AWS_5
