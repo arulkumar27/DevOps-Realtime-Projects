@@ -1,0 +1,13 @@
+# tfsec policy for the temporary development environment.
+
+minimum_severity: LOW
+min_required_version: v1.28.14
+
+# Production-only controls deferred in development.
+exclude:
+  - aws-elb-http-not-used
+  - aws-sns-topic-encryption-use-cmk
+  - aws-ec2-require-vpc-flow-logs-for-all-vpcs
+
+# The application requires an intentionally internet-facing ALB.
+  - aws-elb-alb-not-public

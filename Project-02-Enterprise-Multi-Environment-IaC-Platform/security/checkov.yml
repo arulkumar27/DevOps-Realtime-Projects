@@ -1,0 +1,15 @@
+# Central security-scanning policy for the IaC platform.
+
+framework:
+  - terraform
+
+# Deployment must fail for every non-approved security finding.
+soft-fail: false
+
+# Use concise output in local and Jenkins pipeline scans.
+compact: true
+
+# Controls handled by organization-level logging and DR platforms.
+skip-check:
+  - CKV_AWS_18
+  - CKV_AWS_144

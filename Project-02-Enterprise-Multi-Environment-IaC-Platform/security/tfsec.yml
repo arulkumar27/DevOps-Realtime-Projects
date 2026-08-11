@@ -1,0 +1,8 @@
+# Central tfsec policy for the Terraform platform.
+
+minimum_severity: LOW
+
+exclude:
+  - aws-s3-enable-bucket-logging
+
+min_required_version: v1.28.14

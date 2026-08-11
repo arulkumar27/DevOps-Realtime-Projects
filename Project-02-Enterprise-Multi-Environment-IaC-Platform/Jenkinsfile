@@ -1,0 +1,334 @@
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+        skipDefaultCheckout(true)
+    }
+
+    parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'staging', 'production'],
+            description: 'Environment processed by Terraform'
+        )
+
+        choice(
+            name: 'ACTION',
+            choices: ['validate', 'plan', 'apply', 'destroy'],
+            description: 'Terraform pipeline action'
+        )
+
+        string(
+            name: 'STATE_BUCKET',
+            defaultValue: '',
+            description: 'Existing Terraform remote-state S3 bucket'
+        )
+
+        string(
+            name: 'AWS_REGION',
+            defaultValue: 'ap-south-1',
+            description: 'AWS deployment region'
+        )
+
+        string(
+            name: 'ACM_CERTIFICATE_ARN',
+            defaultValue: '',
+            description: 'Required for production HTTPS deployment'
+        )
+    }
+
+    environment {
+        AWS_DEFAULT_REGION = "${params.AWS_REGION}"
+        AWS_REGION         = "${params.AWS_REGION}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Validate Parameters') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = "Stop"
+
+                    if ([string]::IsNullOrWhiteSpace($env:STATE_BUCKET)) {
+                        throw "STATE_BUCKET is required."
+                    }
+
+                    if (
+                        $env:ENVIRONMENT -eq "production" -and
+                        $env:ACTION -in @("plan", "apply") -and
+                        [string]::IsNullOrWhiteSpace($env:ACM_CERTIFICATE_ARN)
+                    ) {
+                        throw "ACM_CERTIFICATE_ARN is required for production."
+                    }
+                '''
+            }
+        }
+
+        stage('Verify Tools') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = "Stop"
+
+                    terraform version
+                    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+                    tflint --version
+                    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+                    checkov --version
+                    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+                    tfsec --version
+                    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+                    aws --version
+                    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+                '''
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                     credentialsId: 'aws-terraform-credentials']
+                ]) {
+                    dir("environments/${params.ENVIRONMENT}") {
+                        powershell '''
+                            $ErrorActionPreference = "Stop"
+
+                            terraform init `
+                              -backend-config="bucket=$env:STATE_BUCKET" `
+                              -backend-config="key=$env:ENVIRONMENT/terraform.tfstate" `
+                              -backend-config="region=$env:AWS_REGION" `
+                              -reconfigure
+
+                            if ($LASTEXITCODE -ne 0) {
+                                exit $LASTEXITCODE
+                            }
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Quality Checks') {
+            steps {
+                dir("environments/${params.ENVIRONMENT}") {
+                    powershell '''
+                        terraform fmt -check -recursive
+                        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+                        terraform validate
+                        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+                        tflint --init
+                        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+                        tflint --recursive
+                        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+                    '''
+                }
+            }
+        }
+
+        stage('Security Scans') {
+            steps {
+                dir("environments/${params.ENVIRONMENT}") {
+                    powershell '''
+                        if ($env:ENVIRONMENT -eq "production") {
+                            checkov -d .
+                        }
+                        else {
+                            checkov `
+                              --config-file ..\\..\\security\\checkov-dev.yml `
+                              -d .
+                        }
+
+                        if ($LASTEXITCODE -ne 0) {
+                            exit $LASTEXITCODE
+                        }
+
+                        if ($env:ENVIRONMENT -eq "production") {
+                            tfsec `
+                              --tfvars-file terraform.tfvars `
+                              .
+                        }
+                        else {
+                            tfsec `
+                              --config-file ..\\..\\security\\tfsec-dev.yml `
+                              --tfvars-file terraform.tfvars `
+                              .
+                        }
+
+                        if ($LASTEXITCODE -ne 0) {
+                            exit $LASTEXITCODE
+                        }
+                    '''
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            when {
+                expression {
+                    params.ACTION == 'plan' || params.ACTION == 'apply'
+                }
+            }
+
+            steps {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                     credentialsId: 'aws-terraform-credentials']
+                ]) {
+                    dir("environments/${params.ENVIRONMENT}") {
+                        powershell '''
+                            $ErrorActionPreference = "Stop"
+
+                            if ($env:ENVIRONMENT -eq "production") {
+                                $env:TF_VAR_certificate_arn = $env:ACM_CERTIFICATE_ARN
+                            }
+
+                            terraform plan -out="deployment.tfplan"
+
+                            if ($LASTEXITCODE -ne 0) {
+                                exit $LASTEXITCODE
+                            }
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Production Approval') {
+            when {
+                expression {
+                    params.ENVIRONMENT == 'production' &&
+                    params.ACTION == 'apply'
+                }
+            }
+
+            steps {
+                input(
+                    message: 'Approve production infrastructure deployment?',
+                    ok: 'Deploy Production'
+                )
+            }
+        }
+
+        stage('Terraform Apply') {
+            when {
+                expression {
+                    params.ACTION == 'apply'
+                }
+            }
+
+            steps {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                     credentialsId: 'aws-terraform-credentials']
+                ]) {
+                    dir("environments/${params.ENVIRONMENT}") {
+                        powershell '''
+                            terraform apply -auto-approve "deployment.tfplan"
+
+                            if ($LASTEXITCODE -ne 0) {
+                                exit $LASTEXITCODE
+                            }
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Destroy Plan') {
+            when {
+                expression {
+                    params.ACTION == 'destroy'
+                }
+            }
+
+            steps {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                     credentialsId: 'aws-terraform-credentials']
+                ]) {
+                    dir("environments/${params.ENVIRONMENT}") {
+                        powershell '''
+                            terraform plan -destroy -out="destroy.tfplan"
+
+                            if ($LASTEXITCODE -ne 0) {
+                                exit $LASTEXITCODE
+                            }
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Destroy Approval') {
+            when {
+                expression {
+                    params.ACTION == 'destroy'
+                }
+            }
+
+            steps {
+                input(
+                    message: "Approve destruction of ${params.ENVIRONMENT}?",
+                    ok: 'Destroy Environment'
+                )
+            }
+        }
+
+        stage('Terraform Destroy') {
+            when {
+                expression {
+                    params.ACTION == 'destroy'
+                }
+            }
+
+            steps {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                     credentialsId: 'aws-terraform-credentials']
+                ]) {
+                    dir("environments/${params.ENVIRONMENT}") {
+                        powershell '''
+                            terraform apply -auto-approve "destroy.tfplan"
+
+                            if ($LASTEXITCODE -ne 0) {
+                                exit $LASTEXITCODE
+                            }
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Terraform ${params.ACTION} completed for ${params.ENVIRONMENT}."
+        }
+
+        failure {
+            echo "Pipeline failed. Review the failed stage before retrying."
+        }
+
+        always {
+            archiveArtifacts(
+                artifacts: 'environments/**/deployment.tfplan',
+                allowEmptyArchive: true,
+                fingerprint: true
+            )
+        }
+    }
+}
