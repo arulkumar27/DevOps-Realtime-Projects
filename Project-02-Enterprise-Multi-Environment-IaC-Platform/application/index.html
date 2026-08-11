@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise IaC Platform</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #080b12;
+      color: #f4f7fb;
+      font-family: Arial, sans-serif;
+    }
+
+    main {
+      width: min(680px, 90%);
+      padding: 48px;
+      border: 1px solid #2b3343;
+      border-radius: 18px;
+      background: #111722;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+    }
+
+    .status {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      color: #71f5ad;
+      background: rgba(35, 184, 101, 0.14);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 24px 0 14px;
+      font-size: clamp(32px, 6vw, 52px);
+    }
+
+    p {
+      margin: 0;
+      color: #aab4c5;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    ul {
+      margin: 28px 0 0;
+      padding-left: 20px;
+      color: #d5dbea;
+      line-height: 1.9;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="status">Infrastructure healthy</span>
+    <h1>Enterprise IaC Platform</h1>
+    <p>
+      Multi-environment AWS infrastructure deployed using reusable
+      Terraform modules and secured through automated policy scanning.
+    </p>
+    <ul>
+      <li>Multi-AZ networking</li>
+      <li>Application Load Balancer</li>
+      <li>Auto Scaling</li>
+      <li>Remote Terraform state</li>
+      <li>CloudWatch monitoring</li>
+    </ul>
+  </main>
+</body>
+</html>
