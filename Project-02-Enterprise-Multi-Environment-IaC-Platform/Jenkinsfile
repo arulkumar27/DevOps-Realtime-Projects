@@ -112,7 +112,7 @@ pipeline {
                         credentialsId: 'aws-terraform-credentials'
                     ]
                 ]) {
-                    dir("environments/${params.ENVIRONMENT}") {
+                    dir("Project-02-Enterprise-Multi-Environment-IaC-Platform/environments/${params.ENVIRONMENT}") {
                         powershell '''
                             $ErrorActionPreference = "Stop"
 
