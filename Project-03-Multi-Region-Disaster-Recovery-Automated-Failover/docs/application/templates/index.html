@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="description"
+    content="BlackTunes — a resilient multi-region music streaming platform."
+  >
+
+  <title>BlackTunes | Feel Every Beat</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/styles.css') }}"
+  >
+</head>
+
+<body>
+  <div class="background-glow glow-one"></div>
+  <div class="background-glow glow-two"></div>
+
+  <div class="app-shell">
+
+    <aside class="sidebar">
+
+      <a href="/" class="brand">
+        <span class="brand-icon">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+
+        <span>Black<span>Tunes</span></span>
+      </a>
+
+      <nav class="navigation" aria-label="Main navigation">
+
+        <p class="navigation-label">Discover</p>
+
+        <button class="nav-item active" type="button" data-section="home">
+          <span class="nav-icon">⌂</span>
+          Home
+        </button>
+
+        <button class="nav-item" type="button" data-section="explore">
+          <span class="nav-icon">⌕</span>
+          Explore
+        </button>
+
+        <button class="nav-item" type="button" data-section="trending">
+          <span class="nav-icon">↗</span>
+          Trending
+        </button>
+
+        <p class="navigation-label">Your music</p>
+
+        <button class="nav-item" type="button">
+          <span class="nav-icon">♡</span>
+          Liked songs
+        </button>
+
+        <button class="nav-item" type="button">
+          <span class="nav-icon">◷</span>
+          Recently played
+        </button>
+
+        <button class="nav-item" type="button">
+          <span class="nav-icon">＋</span>
+          Create playlist
+        </button>
+
+      </nav>
+
+      <div class="region-card">
+        <div class="region-card-heading">
+          <span class="status-dot"></span>
+          Platform online
+        </div>
+
+        <p>Serving from</p>
+
+        <strong>{{ environment }}</strong>
+        <span>{{ region }}</span>
+
+        <small>Release {{ release_version }}</small>
+      </div>
+
+    </aside>
+
+    <main class="main-content">
+
+      <header class="topbar">
+
+        <div class="mobile-brand">
+          Black<span>Tunes</span>
+        </div>
+
+        <label class="search-box">
+          <span>⌕</span>
+
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="Search tracks, artists or albums"
+            autocomplete="off"
+          >
+
+          <kbd>⌘ K</kbd>
+        </label>
+
+        <div class="profile-area">
+          <button class="notification-button" type="button" aria-label="Notifications">
+            ♫
+          </button>
+
+          <div class="profile">
+            <div class="avatar">AK</div>
+
+            <div>
+              <strong>Arul Kumar</strong>
+              <span>Music explorer</span>
+            </div>
+          </div>
+        </div>
+
+      </header>
+
+      <section class="hero">
+
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span></span>
+            Featured experience
+          </div>
+
+          <h1>
+            Music that stays
+            <span>always available.</span>
+          </h1>
+
+          <p>
+            Discover Tamil indie, electronic, lo-fi and cinematic sounds
+            through a resilient multi-region streaming experience.
+          </p>
+
+          <div class="hero-actions">
+            <button id="heroPlayButton" class="primary-button" type="button">
+              <span>▶</span>
+              Start listening
+            </button>
+
+            <button class="secondary-button" type="button">
+              Explore collection
+            </button>
+          </div>
+
+          <div class="hero-stats">
+            <div>
+              <strong>99.9%</strong>
+              <span>Availability target</span>
+            </div>
+
+            <div>
+              <strong>2</strong>
+              <span>AWS regions</span>
+            </div>
+
+            <div>
+              <strong>{{ all_tracks|length }}</strong>
+              <span>Featured tracks</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-art">
+          <div class="record">
+            <div class="record-ring ring-one"></div>
+            <div class="record-ring ring-two"></div>
+            <div class="record-ring ring-three"></div>
+
+            <div class="record-label">
+              <span>BLACK</span>
+              <strong>TUNES</strong>
+              <small>VOL. 01</small>
+            </div>
+          </div>
+
+          <div class="floating-card now-playing-card">
+            <span class="equalizer">
+              <i></i><i></i><i></i><i></i>
+            </span>
+
+            <div>
+              <small>Now playing</small>
+              <strong>Midnight Drive</strong>
+            </div>
+          </div>
+
+          <div class="floating-card availability-card">
+            <span class="status-dot"></span>
+
+            <div>
+              <small>Infrastructure</small>
+              <strong>{{ region }}</strong>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="content-section">
+
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Curated for you</span>
+            <h2>Featured tracks</h2>
+          </div>
+
+          <button id="viewAllButton" class="text-button" type="button">
+            View all →
+          </button>
+        </div>
+
+        <div id="featuredGrid" class="track-grid">
+
+          {% for track in featured_tracks %}
+
+          <article
+            class="track-card"
+            data-track-id="{{ track.id }}"
+            data-search="{{ track.title|lower }} {{ track.artist|lower }} {{ track.album|lower }}"
+          >
+
+            <div
+              class="track-cover"
+              style="--track-accent: {{ track.accent }}"
+            >
+              <div class="cover-pattern"></div>
+
+              <span class="cover-number">
+                {{ "%02d"|format(track.id) }}
+              </span>
+
+              <button
+                class="card-play-button"
+                type="button"
+                aria-label="Play {{ track.title }}"
+              >
+                ▶
+              </button>
+            </div>
+
+            <div class="track-details">
+              <div>
+                <h3>{{ track.title }}</h3>
+                <p>{{ track.artist }}</p>
+              </div>
+
+              <button
+                class="like-button"
+                type="button"
+                aria-label="Like {{ track.title }}"
+              >
+                ♡
+              </button>
+            </div>
+
+            <div class="track-meta">
+              <span>{{ track.genre }}</span>
+              <span>{{ track.duration }}</span>
+            </div>
+
+          </article>
+
+          {% endfor %}
+
+        </div>
+
+      </section>
+
+      <section class="content-section">
+
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Fresh releases</span>
+            <h2>Made for your moment</h2>
+          </div>
+        </div>
+
+        <div class="track-list">
+
+          {% for track in all_tracks %}
+
+          <div
+            class="track-row"
+            data-track-id="{{ track.id }}"
+            data-search="{{ track.title|lower }} {{ track.artist|lower }} {{ track.album|lower }}"
+          >
+            <span class="track-index">
+              {{ "%02d"|format(loop.index) }}
+            </span>
+
+            <button class="row-play-button" type="button">▶</button>
+
+            <div
+              class="mini-cover"
+              style="--track-accent: {{ track.accent }}"
+            >
+              ♫
+            </div>
+
+            <div class="row-title">
+              <strong>{{ track.title }}</strong>
+              <span>{{ track.artist }}</span>
+            </div>
+
+            <span class="album-name">{{ track.album }}</span>
+            <span class="genre-pill">{{ track.genre }}</span>
+            <span class="duration">{{ track.duration }}</span>
+
+            <button class="row-like-button" type="button">♡</button>
+          </div>
+
+          {% endfor %}
+
+        </div>
+
+      </section>
+
+      <section class="resilience-banner">
+
+        <div class="resilience-icon">◎</div>
+
+        <div>
+          <span>Multi-region resilience</span>
+          <h2>Your music continues—even during regional disruption.</h2>
+
+          <p>
+            Route 53 health checks, automated failover and replicated data
+            help BlackTunes remain available.
+          </p>
+        </div>
+
+        <div class="resilience-status">
+          <span class="status-dot"></span>
+
+          <div>
+            <small>Current serving region</small>
+            <strong>{{ environment }} · {{ region }}</strong>
+          </div>
+        </div>
+
+      </section>
+
+      <footer>
+        <span>BlackTunes Multi-Region DR Platform</span>
+
+        <span>
+          Server {{ hostname }} · Version {{ release_version }}
+        </span>
+      </footer>
+
+    </main>
+
+  </div>
+
+  <div id="playerBar" class="player-bar">
+
+    <div class="player-track">
+      <div id="playerCover" class="player-cover">♫</div>
+
+      <div>
+        <strong id="playerTitle">Select a track</strong>
+        <span id="playerArtist">BlackTunes</span>
+      </div>
+
+      <button id="playerLikeButton" type="button">♡</button>
+    </div>
+
+    <div class="player-controls">
+      <div class="control-buttons">
+        <button type="button" aria-label="Shuffle">⌘</button>
+        <button type="button" aria-label="Previous">◀</button>
+
+        <button
+          id="mainPlayButton"
+          class="main-play-button"
+          type="button"
+          aria-label="Play"
+        >
+          ▶
+        </button>
+
+        <button type="button" aria-label="Next">▶</button>
+        <button type="button" aria-label="Repeat">↻</button>
+      </div>
+
+      <div class="progress-area">
+        <span id="currentTime">0:00</span>
+
+        <div class="progress-track">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+
+        <span id="totalTime">0:00</span>
+      </div>
+    </div>
+
+    <div class="volume-control">
+      <span>♬</span>
+
+      <input
+        type="range"
+        min="0"
+        max="100"
+        value="70"
+        aria-label="Volume"
+      >
+    </div>
+
+  </div>
+
+  <div id="toast" class="toast" role="status"></div>
+
+  <script>
+    window.BLACKTUNES_CONFIG = {
+      environment: {{ environment|tojson }},
+      region: {{ region|tojson }}
+    };
+  </script>
+
+  <script
+    src="{{ url_for('static', filename='js/app.js') }}"
+    defer
+  ></script>
+</body>
+</html>
