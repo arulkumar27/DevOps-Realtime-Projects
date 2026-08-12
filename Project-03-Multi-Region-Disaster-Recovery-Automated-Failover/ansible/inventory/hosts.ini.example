@@ -1,0 +1,5 @@
+[primary_app]
+primary-app ansible_host=PRIMARY_PRIVATE_IP ansible_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/primary-key.pem ansible_python_interpreter=/usr/bin/python3
+
+[dr_app]
+dr-app ansible_host=DR_PUBLIC_IP ansible_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/dr-key.pem ansible_python_interpreter=/usr/bin/python3

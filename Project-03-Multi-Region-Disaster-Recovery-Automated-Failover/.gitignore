@@ -1,0 +1,47 @@
+# Terraform working directories
+**/.terraform/*
+
+# Terraform state
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Generated backend configuration
+**/backend.hcl
+
+# Terraform variable values
+*.tfvars
+!*.tfvars.example
+
+# Terraform crash and override files
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ansible secrets and generated inventory
+ansible/inventory/hosts.ini
+ansible/group_vars/*/vault.yml
+*.retry
+
+# Credentials and keys
+*.pem
+*.ppk
+*.key
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+**/inventory/hosts.ini

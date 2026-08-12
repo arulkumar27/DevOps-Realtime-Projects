@@ -1,0 +1,4 @@
+project_name     = "project03-multi-region-dr"
+aws_region       = "ap-south-1"
+hosted_zone_name = "blacktunes.in"
+record_name      = "dr.blacktunes.in"
