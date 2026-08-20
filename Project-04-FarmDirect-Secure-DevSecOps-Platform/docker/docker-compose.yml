@@ -1,6 +1,7 @@
 services:
   database:
-    image: postgres:16-alpine
+    platform: linux/amd64
+    image: postgres:16-bookworm
     container_name: farmdirect-database
     restart: unless-stopped
     environment:
