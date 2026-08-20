@@ -37,6 +37,18 @@ services:
     networks:
       - farmdirect-network
 
+  frontend:
+    build:
+      context: ../app/frontend
+    container_name: farmdirect-frontend
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    networks:
+      - farmdirect-network
+
 networks:
   farmdirect-network:
     name: farmdirect-network
