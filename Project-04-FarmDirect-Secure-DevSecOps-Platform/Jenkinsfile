@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Backend Dependencies') {
+            steps {
+                dir('app/backend') {
+                    sh 'npm ci'
+                }
+            }
+        }
+
+        stage('Backend Tests') {
+            steps {
+                dir('app/backend') {
+                    sh 'npm test'
+                }
+            }
+        }
+
+        stage('Frontend Production Build') {
+            steps {
+                dir('app/frontend') {
+                    sh 'npm ci'
+                    sh 'npm run build'
+                }
+            }
+        }
+
+        stage('Docker Image Build') {
+            steps {
+                sh 'docker compose -f docker/docker-compose.yml build'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'FarmDirect CI pipeline completed successfully.'
+        }
+
+        failure {
+            echo 'Pipeline failed. Check the failed stage logs.'
+        }
+    }
+}
