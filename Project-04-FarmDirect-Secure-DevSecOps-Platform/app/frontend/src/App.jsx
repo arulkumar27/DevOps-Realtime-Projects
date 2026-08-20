@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
+import LoginModal from "./LoginModal";
 import "./App.css";
 
 function App() {
   const [products, setProducts] = useState([]);
   const [message, setMessage] = useState("Loading products...");
+  const [showLogin, setShowLogin] = useState(false);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("farmdirect_user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
   useEffect(() => {
     fetch("/api/products")
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("API failed");
-        }
+        if (!response.ok) throw new Error("API failed");
         return response.json();
       })
       .then((data) => {
@@ -22,11 +26,25 @@ function App() {
       });
   }, []);
 
+  function logout() {
+    localStorage.removeItem("farmdirect_token");
+    localStorage.removeItem("farmdirect_user");
+    setUser(null);
+  }
+
   return (
     <main className="app">
       <header>
         <p className="logo">Farm<span>Direct</span></p>
-        <button>Login</button>
+
+        {user ? (
+          <div className="user-menu">
+            <span>Hi, {user.fullName}</span>
+            <button onClick={logout}>Logout</button>
+          </div>
+        ) : (
+          <button onClick={() => setShowLogin(true)}>Login</button>
+        )}
       </header>
 
       <section className="hero">
@@ -54,6 +72,13 @@ function App() {
           ))}
         </div>
       </section>
+
+      {showLogin && (
+        <LoginModal
+          onClose={() => setShowLogin(false)}
+          onLogin={(loggedInUser) => setUser(loggedInUser)}
+        />
+      )}
     </main>
   );
 }
