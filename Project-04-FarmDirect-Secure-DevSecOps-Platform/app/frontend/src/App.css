@@ -193,3 +193,66 @@ button {
   color: #9b3a28;
   font-size: 14px;
 }
+
+.add-product {
+  margin: 40px 9% 0;
+  padding: 28px;
+  border-radius: 12px;
+  background: #e7f3e9;
+}
+
+.add-product > p {
+  margin: 0;
+  color: #2f7d48;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+}
+
+.add-product h2 {
+  margin: 8px 0 20px;
+}
+
+.add-product form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.add-product input,
+.add-product select {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #b9d1bf;
+  border-radius: 6px;
+  background: white;
+}
+
+.form-message {
+  display: block;
+  margin-top: 14px;
+  font-weight: bold;
+  color: #2f7d48;
+}
+
+@media (max-width: 700px) {
+  .hero h1 {
+    font-size: 36px;
+  }
+
+  .add-product form {
+    grid-template-columns: 1fr;
+  }
+
+  .user-menu span {
+    display: none;
+  }
+}
+
+.login-modal input,
+.add-product input,
+.add-product select {
+  color: #183126;
+  background: #ffffff;
+  font-size: 16px;
+}

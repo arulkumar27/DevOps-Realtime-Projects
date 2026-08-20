@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import LoginModal from "./LoginModal";
+import ProductForm from "./ProductForm";
 import "./App.css";
 
 function App() {
@@ -11,7 +12,9 @@ function App() {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  useEffect(() => {
+  function loadProducts() {
+    setMessage("Loading products...");
+
     fetch("/api/products")
       .then((response) => {
         if (!response.ok) throw new Error("API failed");
@@ -24,6 +27,10 @@ function App() {
       .catch(() => {
         setMessage("Backend is unavailable. Check Docker containers.");
       });
+  }
+
+  useEffect(() => {
+    loadProducts();
   }, []);
 
   function logout() {
@@ -52,6 +59,10 @@ function App() {
         <h1>Fresh produce, directly from trusted farmers.</h1>
         <span>Secure inventory and order management for farmers and retailers.</span>
       </section>
+
+      {user?.role === "FARMER" && (
+        <ProductForm onProductAdded={loadProducts} />
+      )}
 
       <section className="products">
         <p>LIVE INVENTORY</p>
