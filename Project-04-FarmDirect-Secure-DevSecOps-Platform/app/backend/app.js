@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
@@ -5,10 +7,6 @@ const morgan = require("morgan");
 const productRoutes = require("./routes/productRoutes");
 const authRoutes = require("./routes/authRoutes");
 const orderRoutes = require("./routes/orderRoutes");
-
-app.use("/api/products", productRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/orders", orderRoutes);
 
 const app = express();
 
@@ -34,6 +32,8 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/products", productRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/orders", orderRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
