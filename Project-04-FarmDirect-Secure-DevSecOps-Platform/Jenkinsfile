@@ -5,6 +5,7 @@ pipeline {
         stage('Backend Dependencies') {
             steps {
                 dir('app/backend') {
+                    bat 'npm install'
                 }
             }
         }
@@ -12,6 +13,7 @@ pipeline {
         stage('Backend Tests') {
             steps {
                 dir('app/backend') {
+                    bat 'npm test'
                 }
             }
         }
@@ -19,7 +21,7 @@ pipeline {
         stage('Frontend Production Build') {
             steps {
                 dir('app/frontend') {
-                    bat 'npm ci'
+                    bat 'npm install'
                     bat 'npm run build'
                 }
             }
