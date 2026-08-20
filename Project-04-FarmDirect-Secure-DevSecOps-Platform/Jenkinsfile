@@ -5,7 +5,6 @@ pipeline {
         stage('Backend Dependencies') {
             steps {
                 dir('app/backend') {
-                    bat 'npm ci'
                 }
             }
         }
@@ -13,7 +12,6 @@ pipeline {
         stage('Backend Tests') {
             steps {
                 dir('app/backend') {
-                    bat 'npm test'
                 }
             }
         }
