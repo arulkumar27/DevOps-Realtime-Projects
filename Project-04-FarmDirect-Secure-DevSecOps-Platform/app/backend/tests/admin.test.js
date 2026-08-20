@@ -1,3 +1,5 @@
+process.env.JWT_SECRET = "test-only-jwt-secret";
+
 const request = require("supertest");
 const jwt = require("jsonwebtoken");
 const app = require("../app");
