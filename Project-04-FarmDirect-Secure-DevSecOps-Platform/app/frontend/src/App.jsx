@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import LoginModal from "./LoginModal";
 import ProductForm from "./ProductForm";
 import OrderForm from "./OrderForm";
+import AdminOrders from "./AdminOrders";
 import "./App.css";
 
 function App() {
@@ -68,6 +69,8 @@ function App() {
       {user?.role === "RETAILER" && (
         <OrderForm products={products} onOrderPlaced={loadProducts} />
       )}
+
+      {user?.role === "ADMIN" && <AdminOrders />}
 
       <section className="products">
         <p>LIVE INVENTORY</p>
