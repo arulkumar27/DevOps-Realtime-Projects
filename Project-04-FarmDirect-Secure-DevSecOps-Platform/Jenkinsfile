@@ -2,16 +2,10 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
         stage('Backend Dependencies') {
             steps {
                 dir('app/backend') {
-                    sh 'npm ci'
+                    bat 'npm ci'
                 }
             }
         }
@@ -19,7 +13,7 @@ pipeline {
         stage('Backend Tests') {
             steps {
                 dir('app/backend') {
-                    sh 'npm test'
+                    bat 'npm test'
                 }
             }
         }
@@ -27,15 +21,15 @@ pipeline {
         stage('Frontend Production Build') {
             steps {
                 dir('app/frontend') {
-                    sh 'npm ci'
-                    sh 'npm run build'
+                    bat 'npm ci'
+                    bat 'npm run build'
                 }
             }
         }
 
         stage('Docker Image Build') {
             steps {
-                sh 'docker compose -f docker/docker-compose.yml build'
+                bat 'docker compose -f docker/docker-compose.yml build'
             }
         }
     }
