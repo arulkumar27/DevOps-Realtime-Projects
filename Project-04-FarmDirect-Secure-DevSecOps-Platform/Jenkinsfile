@@ -29,7 +29,7 @@ pipeline {
 
         stage('Docker Image Build') {
             steps {
-                bat '"C:/Users/Madhankumar/AppData/Local/Programs/DockerDesktop/resources/bin/docker.exe" compose -f Project-04-FarmDirect-Secure-DevSecOps-Platform/docker/docker-compose.yml build'
+                bat '"C:/Users/Madhankumar/AppData/Local/Programs/DockerDesktop/resources/bin/docker-compose.exe" -f Project-04-FarmDirect-Secure-DevSecOps-Platform/docker/docker-compose.yml build'
             }
         }
     }
