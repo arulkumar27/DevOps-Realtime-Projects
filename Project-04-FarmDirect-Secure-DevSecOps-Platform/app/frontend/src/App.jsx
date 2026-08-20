@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import LoginModal from "./LoginModal";
 import ProductForm from "./ProductForm";
+import OrderForm from "./OrderForm";
 import "./App.css";
 
 function App() {
@@ -62,6 +63,10 @@ function App() {
 
       {user?.role === "FARMER" && (
         <ProductForm onProductAdded={loadProducts} />
+      )}
+
+      {user?.role === "RETAILER" && (
+        <OrderForm products={products} onOrderPlaced={loadProducts} />
       )}
 
       <section className="products">
