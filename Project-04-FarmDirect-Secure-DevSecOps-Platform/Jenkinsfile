@@ -27,18 +27,27 @@ pipeline {
             }
         }
 
+        stage('Prepare Development Configuration') {
+            steps {
+                dir('Project-04-FarmDirect-Secure-DevSecOps-Platform') {
+                    bat 'copy /Y docker\\.env.example docker\\.env'
+                    bat 'copy /Y app\\backend\\.env.example app\\backend\\.env'
+                }
+            }
+        }
+
         stage('Docker Image Build') {
             steps {
-                bat '"C:/Users/Madhankumar/AppData/Local/Programs/DockerDesktop/resources/bin/docker-compose.exe" -f Project-04-FarmDirect-Secure-DevSecOps-Platform/docker/docker-compose.yml build'
+                dir('Project-04-FarmDirect-Secure-DevSecOps-Platform/docker') {
+                    bat 'set DOCKER_HOST=npipe:////./pipe/dockerDesktopLinuxEngine && "C:/Users/Madhankumar/AppData/Local/Programs/DockerDesktop/resources/bin/docker-compose.exe" build'
+                }
             }
         }
 
         stage('Deploy to Development') {
             steps {
-                dir('Project-04-FarmDirect-Secure-DevSecOps-Platform') {
-                    bat 'copy /Y docker\\.env.example docker\\.env'
-                    bat 'copy /Y app\\backend\\.env.example app\\backend\\.env'
-                    bat '"C:/Users/Madhankumar/AppData/Local/Programs/DockerDesktop/resources/bin/docker-compose.exe" -f docker/docker-compose.yml up -d'
+                dir('Project-04-FarmDirect-Secure-DevSecOps-Platform/docker') {
+                    bat 'set DOCKER_HOST=npipe:////./pipe/dockerDesktopLinuxEngine && "C:/Users/Madhankumar/AppData/Local/Programs/DockerDesktop/resources/bin/docker-compose.exe" up -d'
                 }
             }
         }
