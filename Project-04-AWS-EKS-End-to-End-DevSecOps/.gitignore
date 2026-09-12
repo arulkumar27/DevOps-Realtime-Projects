@@ -1,0 +1,106 @@
+# ==============================
+# AWS / Credentials
+# ==============================
+
+*.pem
+*.key
+*.p12
+*.pfx
+
+.aws/
+credentials
+config
+
+.env
+.env.*
+!.env.example
+
+
+# ==============================
+# Terraform
+# ==============================
+
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
+# Terraform variable files may contain sensitive values
+terraform.tfvars
+*.tfvars
+*.tfvars.json
+
+
+# ==============================
+# Node.js
+# ==============================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Keep package-lock.json
+
+
+# ==============================
+# Build output
+# ==============================
+
+build/
+dist/
+coverage/
+
+
+# ==============================
+# SonarQube
+# ==============================
+
+.sonar/
+.scannerwork/
+
+
+# ==============================
+# Security scan reports
+# ==============================
+
+trivy.txt
+trivy-report.txt
+
+
+# ==============================
+# Jenkins
+# ==============================
+
+jenkins_home/
+*.log
+
+
+# ==============================
+# OS files
+# ==============================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+# ==============================
+# VS Code
+# ==============================
+
+.vscode/
+*.code-workspace
+
+
+# ==============================
+# Temporary files
+# ==============================
+
+*.tmp
+*.temp
+*.swp
+*.swo
+*~

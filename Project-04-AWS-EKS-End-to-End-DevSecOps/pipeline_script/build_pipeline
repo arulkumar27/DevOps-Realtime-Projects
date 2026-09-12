@@ -1,0 +1,198 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(
+            name: 'ECR_REPO_NAME',
+            defaultValue: 'amazon-prime',
+            description: 'Enter ECR repository name'
+        )
+
+        string(
+            name: 'AWS_ACCOUNT_ID',
+            defaultValue: '123456789012',
+            description: 'Enter AWS Account ID'
+        )
+
+        string(
+            name: 'AWS_REGION',
+            defaultValue: 'us-east-1',
+            description: 'Enter AWS region'
+        )
+    }
+
+    tools {
+        jdk 'JDK'
+        nodejs 'NodeJS'
+    }
+
+    environment {
+        SCANNER_HOME = tool 'SonarQube Scanner'
+        PROJECT_DIR = 'Project-04-AWS-EKS-End-to-End-DevSecOps'
+    }
+
+    stages {
+
+        stage('1. Git Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/arulkumar27/DevOps-Realtime-Projects.git'
+            }
+        }
+
+        stage('2. SonarQube Analysis') {
+            steps {
+                dir("${PROJECT_DIR}") {
+                    withSonarQubeEnv('sonar-server') {
+                        sh """
+                            \$SCANNER_HOME/bin/sonar-scanner \
+                            -Dsonar.projectName=amazon-prime \
+                            -Dsonar.projectKey=amazon-prime
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('3. Quality Gate') {
+            steps {
+                waitForQualityGate(
+                    abortPipeline: false,
+                    credentialsId: 'sonar-token'
+                )
+            }
+        }
+
+        stage('4. Install npm') {
+            steps {
+                dir("${PROJECT_DIR}") {
+                    sh 'npm install'
+                }
+            }
+        }
+
+        stage('5. Trivy Scan') {
+            steps {
+                dir("${PROJECT_DIR}") {
+                    sh 'trivy fs . > trivy.txt'
+                }
+            }
+        }
+
+        stage('6. Build Docker Image') {
+            steps {
+                dir("${PROJECT_DIR}") {
+                    sh 'docker build -t ${ECR_REPO_NAME} .'
+                }
+            }
+        }
+
+        stage('7. Create ECR repo') {
+            steps {
+                withCredentials([
+                    string(
+                        credentialsId: 'access-key',
+                        variable: 'AWS_ACCESS_KEY'
+                    ),
+                    string(
+                        credentialsId: 'secret-key',
+                        variable: 'AWS_SECRET_KEY'
+                    )
+                ]) {
+                    sh '''
+                        export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY"
+                        export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_KEY"
+
+                        aws ecr describe-repositories \
+                            --repository-names "$ECR_REPO_NAME" \
+                            --region "$AWS_REGION" \
+                        || \
+                        aws ecr create-repository \
+                            --repository-name "$ECR_REPO_NAME" \
+                            --region "$AWS_REGION"
+                    '''
+                }
+            }
+        }
+
+        stage('8. Login to ECR & Tag Image') {
+            steps {
+                withCredentials([
+                    string(
+                        credentialsId: 'access-key',
+                        variable: 'AWS_ACCESS_KEY'
+                    ),
+                    string(
+                        credentialsId: 'secret-key',
+                        variable: 'AWS_SECRET_KEY'
+                    )
+                ]) {
+                    sh '''
+                        export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY"
+                        export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_KEY"
+
+                        ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+                        aws ecr get-login-password \
+                            --region "$AWS_REGION" \
+                        | docker login \
+                            --username AWS \
+                            --password-stdin "$ECR_REGISTRY"
+
+                        docker tag "$ECR_REPO_NAME" \
+                            "$ECR_REGISTRY/$ECR_REPO_NAME:$BUILD_NUMBER"
+
+                        docker tag "$ECR_REPO_NAME" \
+                            "$ECR_REGISTRY/$ECR_REPO_NAME:latest"
+                    '''
+                }
+            }
+        }
+
+        stage('9. Push Image to ECR') {
+            steps {
+                withCredentials([
+                    string(
+                        credentialsId: 'access-key',
+                        variable: 'AWS_ACCESS_KEY'
+                    ),
+                    string(
+                        credentialsId: 'secret-key',
+                        variable: 'AWS_SECRET_KEY'
+                    )
+                ]) {
+                    sh '''
+                        export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY"
+                        export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_KEY"
+
+                        ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+                        docker push \
+                            "$ECR_REGISTRY/$ECR_REPO_NAME:$BUILD_NUMBER"
+
+                        docker push \
+                            "$ECR_REGISTRY/$ECR_REPO_NAME:latest"
+                    '''
+                }
+            }
+        }
+
+        stage('10. Cleanup Images') {
+            steps {
+                sh '''
+                    ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+                    docker rmi \
+                        "$ECR_REGISTRY/$ECR_REPO_NAME:$BUILD_NUMBER" \
+                        || true
+
+                    docker rmi \
+                        "$ECR_REGISTRY/$ECR_REPO_NAME:latest" \
+                        || true
+
+                    docker images
+                '''
+            }
+        }
+    }
+}
