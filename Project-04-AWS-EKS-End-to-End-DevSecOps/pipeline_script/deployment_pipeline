@@ -47,9 +47,17 @@ pipeline {
             steps {
                 script {
                     sh """
-                    # Install ArgoCD
-                    kubectl create namespace argocd || true
-                    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+                    # Create ArgoCD namespace if it does not exist
+                    kubectl get namespace argocd > /dev/null 2>&1 || kubectl create namespace argocd
+
+                    # Install ArgoCD only if argocd-server does not already exist
+                    if kubectl get deployment argocd-server -n argocd > /dev/null 2>&1; then
+                        echo "ArgoCD is already installed. Skipping installation."
+                    else
+                        kubectl create -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+                    fi
+
+                    # Expose ArgoCD server through AWS LoadBalancer
                     kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
                     """
                 }
