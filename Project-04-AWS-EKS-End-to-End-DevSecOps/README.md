@@ -269,7 +269,7 @@ Project-04-AWS-EKS-End-to-End-DevSecOps/
 
 ### 1. Jenkins CI Pipeline — Build, Security Scan & ECR Push
 
-![Jenkins CI Pipeline](docs/screenshots/Jenkins%20CI%20Pipeline%20%E2%80%93%20Build%2C%20Security%20%26%20ECR.png)
+![Jenkins CI Pipeline](docs/screenshots/Jenkins%20CI%20Pipeline%20%E2%80%93%20Build%2C%20Security%20Scan%20%26%20ECR%20Push.png)
 
 ### 2. AWS EKS Cluster — Kubernetes Workloads
 
